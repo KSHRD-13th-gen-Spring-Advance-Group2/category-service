@@ -6,14 +6,16 @@ import com.hrd.categoryservice.model.dto.response.CategoryResponse;
 import com.hrd.categoryservice.model.enumeration.CategoryProperty;
 import org.springframework.data.domain.Sort;
 
+import java.util.UUID;
+
 public interface CategoryService {
     PagedResponse<CategoryResponse> getAllCategories(Integer page, Integer size, CategoryProperty categoryProperty, Sort.Direction direction);
 
-    CategoryResponse getCategoryById(Long id);
+    CategoryResponse getCategoryById(UUID id);
 
     CategoryResponse createCategory(CategoryRequest categoryRequest);
 
-    CategoryResponse updateCategory(Long id, CategoryRequest categoryRequest);
+    CategoryResponse updateCategory(UUID id, CategoryRequest categoryRequest);
 
-    void deleteCategory(Long id);
+    void deleteCategory(UUID id);
 }

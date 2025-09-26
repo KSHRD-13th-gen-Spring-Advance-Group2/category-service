@@ -9,6 +9,7 @@ public abstract class BaseController {
         ApiResponse<T> response = ApiResponse.<T>builder()
                 .payload(payload)
                 .message(message)
+                .status(httpStatus)
                 .build();
         return ResponseEntity.status(httpStatus).body(response);
     }

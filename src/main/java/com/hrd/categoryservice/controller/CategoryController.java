@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -66,7 +67,7 @@ public class CategoryController extends BaseController{
     @PutMapping("/{categoryId}")
     public ResponseEntity<ApiResponse<CategoryResponse>> updateCategory(@PathVariable("categoryId") UUID categoryId, @RequestBody CategoryRequest categoryRequest) {
         try {
-            return null;
+            return responseEntity("Update category successfully", categoryService.updateCategory(categoryId, categoryRequest));
         } catch (Exception e) {
             throw new BadRequestException(e.getMessage());
         }
@@ -76,7 +77,8 @@ public class CategoryController extends BaseController{
     @DeleteMapping("/{categoryId}")
     public ResponseEntity<ApiResponse<Void>> deleteBookmark(@PathVariable("categoryId") UUID categoryId) {
         try {
-            return null;
+            categoryService.deleteCategory(categoryId);
+            return responseEntity("Deleted category successfully", null);
         } catch (Exception e) {
             throw new BadRequestException(e.getMessage());
         }
