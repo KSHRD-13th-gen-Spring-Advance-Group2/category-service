@@ -17,13 +17,12 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
                 version = "1.0.0",
                 description = "Endpoints for managing product categories owned by users. Supports create/read/update/delete operations, listing and searching categories, and exposing category metadata used by the product and order flows.",
                 contact = @Contact(
-                        name = "Contact KSGA",
-                        url = "https://www.kshrd.com.kh/",
-                        email = "info.kshrd@gmail.com"
+                        name = "Contact KSGA Advance Course Group 2",
+                        url = "https://github.com/KSHRD-13th-gen-Spring-Advance-Group2/category-service"
                 ),
                 license = @License(
-                        name = "KSGA 2.0",
-                        url = "https://www.kshrd.com.kh/"
+                        name = "KSGA Student 2.0",
+                        url = "https://github.com/KSHRD-13th-gen-Spring-Advance-Group2/category-service"
                 )
         ),
         servers = {

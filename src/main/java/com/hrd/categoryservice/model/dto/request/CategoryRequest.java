@@ -1,5 +1,6 @@
 package com.hrd.categoryservice.model.dto.request;
 
+import com.hrd.categoryservice.model.entity.Category;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -27,6 +28,12 @@ public class CategoryRequest {
     @Size(max = 2000, message = "Description must not exceed 2000 characters")
     private String description;
 
-    @NotBlank(message = "User id is required")
-    private UUID userId;
+    public Category toEntity() {
+        return Category.builder()
+                .categoryId(null)
+                .name(this.name)
+                .description(this.description)
+                .userId(null)
+                .build();
+    }
 }

@@ -4,17 +4,17 @@ import com.hrd.categoryservice.exception.BadRequestException;
 import com.hrd.categoryservice.model.dto.request.CategoryRequest;
 import com.hrd.categoryservice.model.dto.response.ApiResponse;
 import com.hrd.categoryservice.model.dto.response.CategoryResponse;
+import com.hrd.categoryservice.model.dto.response.PagedResponse;
 import com.hrd.categoryservice.model.enumeration.CategoryProperty;
 import com.hrd.categoryservice.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -27,45 +27,30 @@ public class CategoryController extends BaseController{
 
     @Operation(summary = "Get all categories (paginated)")
     @GetMapping
-    public ResponseEntity<ApiResponse<List<CategoryResponse>>> getAllCategories(
+    public ResponseEntity<ApiResponse<PagedResponse<CategoryResponse>>> getAllCategories(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
-            @RequestParam CategoryProperty categoryProperty,
+            @RequestParam(defaultValue = "CATEGORY_ID") CategoryProperty categoryProperty,
             @RequestParam(defaultValue = "DESC") Sort.Direction sortDirection
     ) {
-        try {
-            if (page <= 0) throw new BadRequestException("Page index must not be less than zero");
-            if (size <= 0) throw new BadRequestException("Page size must not be less than one");
-
-            return null;
-        } catch (Exception e) {
-            throw new BadRequestException(e.getMessage());
-        }
+        return responseEntity("Categories retrieved successfully", categoryService.getAllCategories(page, size, categoryProperty, sortDirection));
     }
 
     @Operation(summary = "Get category by ID")
     @GetMapping("/{categoryId}")
     public ResponseEntity<ApiResponse<CategoryResponse>> getCategoryById(@PathVariable("categoryId") UUID categoryId) {
-        try {
-            return null;
-        } catch (Exception e) {
-            throw new BadRequestException(e.getMessage());
-        }
+        return responseEntity("Category retrieved successfully", categoryService.getCategoryById(categoryId));
     }
 
     @Operation(summary = "Create a new category")
     @PostMapping
-    public ResponseEntity<ApiResponse<CategoryResponse>> addCategory(@RequestBody CategoryRequest categoryRequest) {
-        try {
-            return null;
-        } catch (Exception e) {
-            throw new BadRequestException(e.getMessage());
-        }
+    public ResponseEntity<ApiResponse<CategoryResponse>> addCategory(@Valid @RequestBody CategoryRequest categoryRequest) {
+        return responseEntity("Category created successfully", categoryService.createCategory(categoryRequest));
     }
 
     @Operation(summary = "Update category by ID")
     @PutMapping("/{categoryId}")
-    public ResponseEntity<ApiResponse<CategoryResponse>> updateCategory(@PathVariable("categoryId") UUID categoryId, @RequestBody CategoryRequest categoryRequest) {
+    public ResponseEntity<ApiResponse<CategoryResponse>> updateCategory(@PathVariable("categoryId") UUID categoryId, @Valid @RequestBody CategoryRequest categoryRequest) {
         try {
             return responseEntity("Update category successfully", categoryService.updateCategory(categoryId, categoryRequest));
         } catch (Exception e) {

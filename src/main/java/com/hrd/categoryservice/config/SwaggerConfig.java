@@ -21,6 +21,5 @@ import org.springframework.context.annotation.Configuration;
                 @Server(url = "http://localhost:8082", description = "Local Server")
         }
 )
-
 public class SwaggerConfig {
 }

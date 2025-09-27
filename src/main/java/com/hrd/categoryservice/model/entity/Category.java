@@ -1,6 +1,7 @@
 package com.hrd.categoryservice.model.entity;
 
 import com.hrd.categoryservice.model.dto.response.CategoryResponse;
+import com.hrd.categoryservice.model.dto.response.UserResponse;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,15 +26,15 @@ public class Category {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "userId", nullable = false)
+    @Column(name = "user_id", nullable = false)
     private UUID userId;
 
-    public CategoryResponse toResponse() {
+    public CategoryResponse toResponse(UserResponse userResponse) {
         return CategoryResponse.builder()
                 .categoryId(this.categoryId)
                 .name(this.name)
                 .description(this.description)
-                .userResponse(null)
+                .userResponse(userResponse)
                 .build();
     }
 }
