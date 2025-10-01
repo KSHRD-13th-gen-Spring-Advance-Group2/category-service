@@ -15,9 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,28 +28,14 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final UserClient userClient;
 
-    private User getCurrentUser() {
-        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return new User(jwt);
-    }
-
     @Override
     public PagedResponse<CategoryResponse> getAllCategories(Integer page, Integer size, CategoryProperty categoryProperty, Sort.Direction direction) {
         Pageable pageable = PageRequest.of(page-1, size, Sort.by(direction, categoryProperty.getFieldName()));
-//        Page<Category> categories = categoryRepository.findAllByUserId(getCurrentUser().getUserId(), pageable);
 
-        // Mock UserResponse
-        UserResponse userResponse = UserResponse.builder()
-                .userId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
-                .username("narin123")
-                .email("narin@gmail.com")
-                .firstName("horn")
-                .lastName("narin")
-                .imageUrl("image.jpg")
-                .build();
+        User user = userClient.getUser().getBody().getPayload();
+        UserResponse userResponse = user.toResponse();
 
-
-        Page<com.hrd.categoryservice.model.entity.Category> categories = categoryRepository.findAllByUserId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"), pageable);
+        Page<Category> categories = categoryRepository.findAllByUserId(userResponse.getUserId(), pageable);
         return PagedResponse.<CategoryResponse>builder()
                 .items(categories.stream().map(category -> category.toResponse(userResponse)).toList())
                 .pagination(new PaginationInfo(categories))
@@ -62,7 +45,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryResponse getCategoryById(UUID id) {
 
-        User user = getCurrentUser();
+        User user = userClient.getUser().getBody().getPayload();
         UserResponse userResponse = user.toResponse();
 
         return categoryRepository.findCategoriesByCategoryIdAndUserId(id, userResponse.getUserId()).orElseThrow(() ->
@@ -73,15 +56,8 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public CategoryResponse createCategory(CategoryRequest categoryRequest) {
 
-        // Mock UserResponse
-        UserResponse userResponse = UserResponse.builder()
-                .userId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
-                .username("narin123")
-                .email("narin@gmail.com")
-                .firstName("horn")
-                .lastName("narin")
-                .imageUrl("image.jpg")
-                .build();
+        User user = userClient.getUser().getBody().getPayload();
+        UserResponse userResponse = user.toResponse();
 
         if(categoryRepository.existsCategoryByNameAndUserId(categoryRequest.getName(), userResponse.getUserId()))
             throw new DataConflictException("Category already exists, Please choose a different category name");
