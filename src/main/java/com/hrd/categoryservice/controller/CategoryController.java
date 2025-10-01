@@ -8,6 +8,7 @@ import com.hrd.categoryservice.model.dto.response.PagedResponse;
 import com.hrd.categoryservice.model.enumeration.CategoryProperty;
 import com.hrd.categoryservice.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/categories")
 @Tag(name = "Category Controller")
-//@SecurityRequirement(name = "bearerAuth")
+@SecurityRequirement(name = "bearerAuth")
 public class CategoryController extends BaseController{
     private final CategoryService categoryService;
 
