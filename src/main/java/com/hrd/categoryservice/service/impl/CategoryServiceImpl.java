@@ -18,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -71,20 +72,17 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public CategoryResponse updateCategory(UUID id, CategoryRequest categoryRequest) {
-        Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Category not found with id: " + id));
+        User user = userClient.getUser().getBody().getPayload();
+        UserResponse userResponse = user.toResponse();
+
+        Category category = categoryRepository.findCategoriesByCategoryIdAndUserId(id, userResponse.getUserId()).orElse(null);
+        Category categoryByName = categoryRepository.findByNameAndUserId(categoryRequest.getName(), userResponse.getUserId());
+
+        if(categoryByName != null && !Objects.equals(category.getName(), categoryRequest.getName()))
+            throw new DataConflictException("Category already exists, Please choose a different category name");
 
         category.setName(categoryRequest.getName());
         category.setDescription(categoryRequest.getDescription());
-
-        // Mock UserResponse
-        UserResponse userResponse = UserResponse.builder()
-                .userId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
-                .email("narin@gmail.com")
-                .firstName("horn")
-                .lastName("narin")
-                .imageUrl("image.jpg")
-                .build();
 
         return categoryRepository.save(category).toResponse(userResponse);
     }
@@ -92,7 +90,10 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public void deleteCategory(UUID id) {
-        Category category = categoryRepository.findById(id)
+        User user = userClient.getUser().getBody().getPayload();
+        UserResponse userResponse = user.toResponse();
+
+        Category category = categoryRepository.findCategoriesByCategoryIdAndUserId(id, userResponse.getUserId())
                 .orElseThrow(() -> new NotFoundException("Category not found with id: " + id));
 
         categoryRepository.delete(category);
