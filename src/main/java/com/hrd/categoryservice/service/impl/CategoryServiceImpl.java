@@ -64,6 +64,15 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     public CategoryResponse getCategoryByIdFallback(UUID id, Throwable throwable) {
+
+        if (throwable instanceof NotFoundException) {
+            throw (NotFoundException) throwable;
+        }
+
+        if (throwable.getCause() instanceof NotFoundException) {
+            throw (NotFoundException) throwable.getCause();
+        }
+
         throw new ServiceUnavailableException("Auth service is not available. Cannot get category by ID.");
     }
 
@@ -85,7 +94,16 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     public CategoryResponse createCategoryFallback(CategoryRequest categoryRequest, Throwable throwable) {
-        throw new NotFoundException("Auth service is not available. Cannot create category.");
+
+        if (throwable instanceof DataConflictException) {
+            throw (DataConflictException) throwable;
+        }
+
+        if (throwable.getCause() instanceof DataConflictException) {
+            throw (DataConflictException) throwable.getCause();
+        }
+
+        throw new ServiceUnavailableException("Auth service is not available. Cannot create category.");
     }
 
     @Override
