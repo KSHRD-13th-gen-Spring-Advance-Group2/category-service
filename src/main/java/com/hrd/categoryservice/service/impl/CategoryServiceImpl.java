@@ -3,6 +3,7 @@ package com.hrd.categoryservice.service.impl;
 import com.hrd.categoryservice.client.UserClient;
 import com.hrd.categoryservice.exception.DataConflictException;
 import com.hrd.categoryservice.exception.NotFoundException;
+import com.hrd.categoryservice.exception.ServiceUnavailableException;
 import com.hrd.categoryservice.model.dto.request.CategoryRequest;
 import com.hrd.categoryservice.model.dto.response.*;
 import com.hrd.categoryservice.model.entity.Category;
@@ -10,11 +11,14 @@ import com.hrd.categoryservice.model.entity.User;
 import com.hrd.categoryservice.model.enumeration.CategoryProperty;
 import com.hrd.categoryservice.repository.CategoryRepository;
 import com.hrd.categoryservice.service.CategoryService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +34,7 @@ public class CategoryServiceImpl implements CategoryService {
     private final UserClient userClient;
 
     @Override
+    @CircuitBreaker(name = "category-service", fallbackMethod = "getAllCategoriesFallback")
     public PagedResponse<CategoryResponse> getAllCategories(Integer page, Integer size, CategoryProperty categoryProperty, Sort.Direction direction) {
         Pageable pageable = PageRequest.of(page-1, size, Sort.by(direction, categoryProperty.getFieldName()));
 
@@ -43,7 +48,12 @@ public class CategoryServiceImpl implements CategoryService {
                 .build();
     }
 
+    public PagedResponse<CategoryResponse> getAllCategoriesFallback(Integer page, Integer size, CategoryProperty categoryProperty, Sort.Direction direction,Throwable throwable) {
+        throw new ServiceUnavailableException("Auth service is not available. Cannot get all categories.");
+    }
+
     @Override
+    @CircuitBreaker(name = "category-service", fallbackMethod = "getCategoryByIdFallback")
     public CategoryResponse getCategoryById(UUID id) {
 
         User user = userClient.getUser().getBody().getPayload();
@@ -53,8 +63,13 @@ public class CategoryServiceImpl implements CategoryService {
                 new NotFoundException("Category with id of "+id+" not found")).toResponse(userResponse);
     }
 
+    public CategoryResponse getCategoryByIdFallback(UUID id, Throwable throwable) {
+        throw new ServiceUnavailableException("Auth service is not available. Cannot get category by ID.");
+    }
+
     @Override
     @Transactional
+    @CircuitBreaker(name = "category-service", fallbackMethod = "createCategoryFallback")
     public CategoryResponse createCategory(CategoryRequest categoryRequest) {
 
         User user = userClient.getUser().getBody().getPayload();
@@ -67,6 +82,10 @@ public class CategoryServiceImpl implements CategoryService {
         category.setUserId(userResponse.getUserId());
 
         return categoryRepository.save(category).toResponse(userResponse);
+    }
+
+    public CategoryResponse createCategoryFallback(CategoryRequest categoryRequest, Throwable throwable) {
+        throw new NotFoundException("Auth service is not available. Cannot create category.");
     }
 
     @Override

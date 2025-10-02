@@ -119,6 +119,11 @@ public class GlobalExceptionHandler {
         return problemDetailResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(ServiceUnavailableException.class)
+    public ResponseEntity<?> handleServiceUnavailableException(ServiceUnavailableException e) {
+        return problemDetailResponseEntity(e.getMessage(), HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
     private static final Logger logger = LoggerFactory.getLogger(ExceptionHandler.class);
 
     // Handle all unhandled exceptions
